@@ -98,23 +98,23 @@ export function Hero() {
         className={`duotone-wrap grain absolute inset-0 transition-opacity duration-700 ${sceneReady ? "opacity-0" : "opacity-100"}`}
       >
         <Image
-          src="/media/booth.jpg"
-          alt="4PLAY leaning over the decks under green club light"
+          src="/media/booth-hd.jpg"
+          alt="4PLAY leaning over the decks under warm club light"
           fill
           preload
           sizes="100vw"
-          className="duotone object-cover object-[50%_30%]"
+          className="duotone object-cover object-[54%_30%] sm:object-[50%_30%]"
         />
         <div className="absolute inset-0 z-[2] bg-gradient-to-t from-ink via-ink/30 to-transparent" />
       </div>
 
-      {webgl && <HeroScene image="/media/booth.jpg" tempo={tempo} onReady={onReady} onFail={onFail} />}
+      {webgl && <HeroScene image="/media/booth-hd.jpg" tempo={tempo} onReady={onReady} onFail={onFail} />}
 
-      <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-end px-4 pb-[15svh] text-center">
+      <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-end px-4 pb-[15svh] text-center sm:items-start sm:px-8 sm:text-left lg:px-12">
         <p data-hero-in className="label mb-5 text-bone/90 [text-shadow:0_1px_14px_rgb(0_0_0/0.9)]">
           <span className="text-gold">Now playing</span> — hypnotic techno journey
         </p>
-        <h1 className="display text-[clamp(2.5rem,12.4vw,10rem)] md:text-[clamp(3rem,9.6vw,10rem)] text-bone">
+        <h1 className="display text-[clamp(2.5rem,12.4vw,10rem)] md:text-[clamp(3rem,7.4vw,8.5rem)] text-bone">
           <span className="sr-only">4PLAY — Nikunj Sharma. Latest set: </span>
           <span aria-hidden="true" className="block">
             <span className="split-word">
@@ -125,7 +125,7 @@ export function Hero() {
             </span>
           </span>
         </h1>
-        <div data-hero-in className="pointer-events-auto mt-8 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
+        <div data-hero-in className="pointer-events-auto mt-8 flex flex-wrap items-center justify-center gap-2.5 sm:justify-start sm:gap-3">
           <button
             type="button"
             onClick={() => playVideo(featured)}
@@ -147,7 +147,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0 z-10 grid grid-cols-[1fr_auto_1fr] items-end gap-4 px-4 pb-6 sm:px-8">
+      <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-4 px-4 pb-6 sm:grid sm:grid-cols-[1fr_auto_1fr] sm:px-8">
         <p data-hero-in className="label hidden leading-relaxed text-bone/70 sm:block">
           {artist.name} a.k.a. {artist.alias}
           <br />
@@ -160,9 +160,10 @@ export function Hero() {
             e.preventDefault();
             scrollToTarget("#venues");
           }}
-          className="label col-start-2 flex flex-col items-center gap-2 text-bone/80 transition-colors hover:text-bone"
+          aria-label="Scroll down"
+          className="label flex flex-col items-center gap-2 pb-1 text-bone/80 transition-colors hover:text-bone sm:col-start-2"
         >
-          Scroll down
+          <span className="hidden sm:inline">Scroll down</span>
           <Mark className="size-3.5 text-gold motion-safe:animate-bounce" strokeWidth={10} />
         </a>
         <button
@@ -180,7 +181,7 @@ export function Hero() {
             />
             <span className="tabular-nums">{bpm}</span> BPM
           </span>
-          <span className="label text-[0.6rem] text-mute transition-colors group-hover:text-gold">Tap to the beat</span>
+          <span className="label text-[0.6rem] whitespace-nowrap text-mute transition-colors group-hover:text-gold">Tap to the beat</span>
         </button>
       </div>
     </section>

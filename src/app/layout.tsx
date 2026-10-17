@@ -37,10 +37,10 @@ export const metadata: Metadata = {
   openGraph: {
     title: "4PLAY — Nikunj Sharma",
     description: "Hypnotic techno, deep grooves and psychedelic textures. DJ & producer from New Delhi.",
-    images: ["/media/booth.jpg"],
+    images: ["/media/booth-hd.jpg"],
     type: "website",
   },
-  twitter: { card: "summary_large_image", images: ["/media/booth.jpg"] },
+  twitter: { card: "summary_large_image", images: ["/media/booth-hd.jpg"] },
 };
 
 export const viewport: Viewport = {

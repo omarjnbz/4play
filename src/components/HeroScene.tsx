@@ -14,7 +14,7 @@ const photoVert = /* glsl */ `
   }
 `;
 
-// Grain duotone of the booth photo: pointer lens, beat breathing, RGB split.
+// Grain duotone of the hero photo: pointer lens, beat breathing, RGB split.
 const photoFrag = /* glsl */ `
   precision highp float;
   uniform sampler2D uTex;
@@ -25,13 +25,21 @@ const photoFrag = /* glsl */ `
   uniform float uBeat;
   uniform float uHover;
   uniform float uReveal;
+  uniform vec2 uFocus;
   varying vec2 vUv;
 
-  vec2 cover(vec2 uv) {
+  // Cover-fit scale with a little overscan, so the wobble and beat never
+  // sample past the image edge (16:9 art on a 16:10 screen has no slack).
+  vec2 coverScale() {
     float rs = uRes.x / uRes.y;
     float ri = uImg.x / uImg.y;
-    vec2 s = rs > ri ? vec2(1.0, ri / rs) : vec2(rs / ri, 1.0);
-    return (uv - 0.5) * s + vec2(0.5, 0.6);
+    return (rs > ri ? vec2(1.0, ri / rs) : vec2(rs / ri, 1.0)) * 0.97;
+  }
+
+  // Aim at uFocus, clamped to keep a margin inside the image.
+  vec2 focus(vec2 s) {
+    vec2 margin = min(vec2(0.01), (1.0 - s) * 0.5);
+    return clamp(uFocus, s * 0.5 + margin, 1.0 - s * 0.5 - margin);
   }
 
   float hash(vec2 p) {
@@ -48,8 +56,8 @@ const photoFrag = /* glsl */ `
     uv += vec2(sin(uv.y * 9.0 + uTime * 0.6), cos(uv.x * 7.0 - uTime * 0.5)) * 0.0035;
     uv -= (d / max(dist, 1e-4)) * lens * 0.03 / aspect;
 
-    vec2 c = cover(uv);
-    c = (c - vec2(0.5, 0.6)) * (1.0 - 0.014 * uBeat - 0.06 * (1.0 - uReveal)) + vec2(0.5, 0.6);
+    vec2 s = coverScale();
+    vec2 c = (uv - 0.5) * s * (1.0 - 0.014 * uBeat - 0.06 * (1.0 - uReveal)) + focus(s);
 
     float shift = 0.0015 + 0.006 * uBeat + 0.012 * lens;
     vec3 col = vec3(
@@ -228,6 +236,7 @@ export function HeroScene({ image, tempo, onReady, onFail }: Props) {
       uBeat: { value: 0 },
       uHover: { value: 0 },
       uReveal: { value: 0 },
+      uFocus: { value: new THREE.Vector2(0.5, 0.6) },
     };
     const photoGeo = new THREE.PlaneGeometry(2, 2);
     const photoMat = new THREE.ShaderMaterial({
@@ -298,6 +307,7 @@ export function HeroScene({ image, tempo, onReady, onFail }: Props) {
     window.addEventListener("blur", onLeave);
 
     let markScale = 1;
+    let markX = 0;
     function resize() {
       const { clientWidth: w, clientHeight: h } = host!;
       renderer.setSize(w, h, false);
@@ -306,8 +316,14 @@ export function HeroScene({ image, tempo, onReady, onFail }: Props) {
       uniforms.uRes.value.set(w, h);
       // Float the eye above the headline: smaller and higher on wide screens.
       const portrait = camera.aspect < 0.8;
-      markScale = portrait ? Math.min(1, camera.aspect / 0.6) * 0.6 : Math.min(1, camera.aspect / 1.3) * 0.6;
-      mark.group.position.y = portrait ? 1.1 : 1.3;
+      // He stands right of centre with his head at the top: on wide screens the
+      // eye floats in the dark space on the left above the headline; on phones
+      // the crop shifts right to keep him centred and the eye sits on his chest.
+      const halfWidth = camera.aspect * 2.52;
+      uniforms.uFocus.value.set(portrait ? 0.54 : 0.5, 0.6);
+      markScale = portrait ? Math.min(1, camera.aspect / 0.6) * 0.42 : Math.min(1, camera.aspect / 1.3) * 0.5;
+      markX = portrait ? 0 : -halfWidth * 0.56;
+      mark.group.position.y = portrait ? 0.0 : 1.05;
     }
     resize();
     const ro = new ResizeObserver(resize);
@@ -349,7 +365,7 @@ export function HeroScene({ image, tempo, onReady, onFail }: Props) {
       g.rotation.y = intro.spin + Math.sin(t * 0.4) * 0.22 + nx.x * 0.45;
       g.rotation.x = Math.sin(t * 0.3) * 0.06 - nx.y * 0.3;
       g.rotation.z = Math.sin(t * 0.25) * 0.03;
-      g.position.x = nx.x * 0.12;
+      g.position.x = markX + nx.x * 0.12;
       const s = markScale * intro.scale * (1 + beat * 0.022);
       g.scale.setScalar(s);
       mark.pupil.position.x = nx.x * 0.3;
