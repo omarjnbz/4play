@@ -6,9 +6,6 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
 import gsap from "gsap";
 import { onIntro } from "./Preloader";
 
-const BPM = 124;
-const BEAT = 60 / BPM;
-
 const photoVert = /* glsl */ `
   varying vec2 vUv;
   void main() {
@@ -180,9 +177,12 @@ function buildMark(env: THREE.Texture) {
   };
 }
 
-type Props = { image: string; onReady?: () => void; onFail?: () => void };
+// Shared, mutable tempo: the hero's tap-tempo button writes it, the frame loop reads it.
+export type Tempo = { bpm: number; tapAt: number };
 
-export function HeroScene({ image, onReady, onFail }: Props) {
+type Props = { image: string; tempo: React.RefObject<Tempo>; onReady?: () => void; onFail?: () => void };
+
+export function HeroScene({ image, tempo, onReady, onFail }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -315,6 +315,8 @@ export function HeroScene({ image, onReady, onFail }: Props) {
 
     const beatDot = area.querySelector<HTMLElement>("[data-beat-dot]");
     const timer = new THREE.Timer();
+    let phase = 0;
+    let lastTap = tempo.current.tapAt;
     let raf = 0;
     let running = false;
 
@@ -322,7 +324,15 @@ export function HeroScene({ image, onReady, onFail }: Props) {
       raf = requestAnimationFrame(frame);
       timer.update(now);
       const t = timer.getElapsed();
-      const beat = Math.exp(-((t % BEAT) / BEAT) * 6);
+      // Advance the beat at the current tempo; a tap snaps the downbeat to "now".
+      const { bpm, tapAt } = tempo.current;
+      if (tapAt !== lastTap) {
+        lastTap = tapAt;
+        phase = 0;
+      } else {
+        phase = (phase + (timer.getDelta() * bpm) / 60) % 1;
+      }
+      const beat = Math.exp(-phase * 6);
 
       const m = uniforms.uMouse.value;
       m.x += (target.x - m.x) * 0.08;
@@ -409,7 +419,7 @@ export function HeroScene({ image, onReady, onFail }: Props) {
       renderer.dispose();
       canvas.remove();
     };
-  }, [image, onReady, onFail]);
+  }, [image, tempo, onReady, onFail]);
 
   return <div ref={hostRef} className="absolute inset-0" />;
 }

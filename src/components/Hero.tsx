@@ -7,11 +7,14 @@ import gsap from "gsap";
 import { Icon } from "./Icon";
 import { Mark } from "./Mark";
 import { onIntro } from "./Preloader";
+import type { Tempo } from "./HeroScene";
 import { useMedia } from "./Media";
 import { artist, videos } from "@/lib/content";
 import { prefersReducedMotion, scrollToTarget } from "@/lib/scroll";
 
 const HeroScene = dynamic(() => import("./HeroScene").then((m) => m.HeroScene), { ssr: false });
+
+const DEFAULT_BPM = 124;
 
 const featured = videos.find((v) => v.id === "L4EVeP8at2c")!;
 
@@ -32,6 +35,22 @@ export function Hero() {
   const webgl = supported && !failed;
   const [sceneReady, setSceneReady] = useState(false);
   const { playVideo } = useMedia();
+
+  // Tap tempo: tap along to any track and the hero visuals lock to that BPM.
+  const [bpm, setBpm] = useState(DEFAULT_BPM);
+  const tempo = useRef<Tempo>({ bpm: DEFAULT_BPM, tapAt: 0 });
+  const taps = useRef<number[]>([]);
+  const tap = () => {
+    const now = performance.now();
+    const recent = [...taps.current.filter((t) => now - t < 2000), now].slice(-5);
+    taps.current = recent;
+    tempo.current.tapAt = now;
+    if (recent.length < 2) return;
+    const interval = (recent[recent.length - 1] - recent[0]) / (recent.length - 1);
+    const next = Math.round(Math.min(180, Math.max(70, 60000 / interval)));
+    tempo.current.bpm = next;
+    setBpm(next);
+  };
 
   useEffect(() => {
     const el = root.current;
@@ -89,7 +108,7 @@ export function Hero() {
         <div className="absolute inset-0 z-[2] bg-gradient-to-t from-ink via-ink/30 to-transparent" />
       </div>
 
-      {webgl && <HeroScene image="/media/booth.jpg" onReady={onReady} onFail={onFail} />}
+      {webgl && <HeroScene image="/media/booth.jpg" tempo={tempo} onReady={onReady} onFail={onFail} />}
 
       <div className="pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-end px-4 pb-[15svh] text-center">
         <p data-hero-in className="label mb-5 text-bone/90 [text-shadow:0_1px_14px_rgb(0_0_0/0.9)]">
@@ -146,10 +165,23 @@ export function Hero() {
           Scroll down
           <Mark className="size-3.5 text-gold motion-safe:animate-bounce" strokeWidth={10} />
         </a>
-        <p data-hero-in className="label flex items-center justify-end gap-2.5 text-bone/70" aria-label="124 beats per minute">
-          <span data-beat-dot className="size-2 rounded-full bg-teal" />
-          124 BPM
-        </p>
+        <button
+          data-hero-in
+          type="button"
+          onClick={tap}
+          aria-label={`Tap tempo: ${bpm} BPM. Tap along to the beat to set the tempo of the visuals.`}
+          className="group flex touch-manipulation flex-col items-end gap-1.5 justify-self-end text-right"
+        >
+          <span className="label flex items-center gap-2.5 text-bone">
+            <span
+              data-beat-dot
+              className={`size-2 rounded-full bg-teal transition-colors group-active:bg-gold ${webgl ? "" : "beat-css"}`}
+              style={{ "--beat": `${60 / bpm}s` } as React.CSSProperties}
+            />
+            <span className="tabular-nums">{bpm}</span> BPM
+          </span>
+          <span className="label text-[0.6rem] text-mute transition-colors group-hover:text-gold">Tap to the beat</span>
+        </button>
       </div>
     </section>
   );

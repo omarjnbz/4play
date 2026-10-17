@@ -216,7 +216,24 @@ body {
   animation: meter var(--beat, 0.48s) var(--ease-out) infinite;
 }
 
+/* Beat dot when the WebGL scene isn't driving it */
+@keyframes beat-dot {
+  0% {
+    transform: scale(1.9);
+  }
+  60%,
+  100% {
+    transform: scale(1);
+  }
+}
+.beat-css {
+  animation: beat-dot var(--beat, 0.48s) ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .beat-css {
+    animation: none;
+  }
   .meter {
     animation: none;
     transform: scaleY(var(--hi, 1));
