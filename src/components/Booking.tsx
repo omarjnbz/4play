@@ -13,7 +13,7 @@ export function Booking() {
         <p data-fade className="label mb-6 text-ink/60">
           Bookings · Collaborations · Curated events
         </p>
-        <h2 id="booking-title" data-split className="display max-w-[12ch] text-[clamp(3rem,9.5vw,9rem)]">
+        <h2 id="booking-title" data-split className="display max-w-[12ch] text-[clamp(2.2rem,10.5vw,9rem)]">
           Let’s build something
         </h2>
 

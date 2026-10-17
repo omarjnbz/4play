@@ -93,7 +93,7 @@ export function LightDesk() {
               <p className="label text-bone/70">
                 Leading channel · <span className="tabular-nums">{mix.bpm}</span> BPM
               </p>
-              <p className="display mt-2 text-[clamp(2.4rem,6vw,5.5rem)]">{mix.lead.label}</p>
+              <p className="display mt-2 text-[clamp(1.75rem,8vw,5.5rem)]">{mix.lead.label}</p>
               <p className="mt-3 max-w-md text-bone-2">{mix.lead.line}</p>
             </div>
           </div>

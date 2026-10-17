@@ -95,7 +95,7 @@ export function Hero() {
         <p data-hero-in className="label mb-5 text-bone/90 [text-shadow:0_1px_14px_rgb(0_0_0/0.9)]">
           <span className="text-gold">Now playing</span> — hypnotic techno journey
         </p>
-        <h1 className="display text-[clamp(3.1rem,9.6vw,10rem)] text-bone">
+        <h1 className="display text-[clamp(2.5rem,12.4vw,10rem)] md:text-[clamp(3rem,9.6vw,10rem)] text-bone">
           <span className="sr-only">4PLAY — Nikunj Sharma. Latest set: </span>
           <span aria-hidden="true" className="block">
             <span className="split-word">
@@ -106,11 +106,11 @@ export function Hero() {
             </span>
           </span>
         </h1>
-        <div data-hero-in className="pointer-events-auto mt-8 flex flex-wrap items-center justify-center gap-3">
+        <div data-hero-in className="pointer-events-auto mt-8 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={() => playVideo(featured)}
-            className="group flex items-center gap-3 bg-bone px-6 py-3.5 text-sm font-extrabold tracking-wide text-ink uppercase transition-[background-color,transform] duration-300 hover:bg-gold active:scale-[0.97]"
+            className="group flex items-center gap-2.5 bg-bone px-5 py-3.5 sm:gap-3 sm:px-6 text-sm font-extrabold tracking-wide text-ink uppercase transition-[background-color,transform] duration-300 hover:bg-gold active:scale-[0.97]"
           >
             <Icon name="solar:play-bold" className="size-4 transition-transform duration-300 group-hover:scale-125" />
             Listen now
@@ -121,7 +121,7 @@ export function Hero() {
               e.preventDefault();
               scrollToTarget("#booking");
             }}
-            className="border border-bone/40 px-6 py-3.5 text-sm font-extrabold tracking-wide text-bone uppercase transition-colors duration-300 hover:border-bone hover:bg-bone/10"
+            className="border border-bone/40 px-5 py-3.5 sm:px-6 text-sm font-extrabold tracking-wide text-bone uppercase transition-colors duration-300 hover:border-bone hover:bg-bone/10"
           >
             Book 4PLAY
           </a>

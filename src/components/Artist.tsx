@@ -43,7 +43,7 @@ export function Artist() {
         </div>
 
         <div className="mt-20 grid gap-12 md:mt-10 md:grid-cols-[minmax(0,6fr)_minmax(0,6fr)]">
-          <h2 id="artist-title" data-split className="display text-[clamp(2.4rem,5.5vw,5rem)]">
+          <h2 id="artist-title" data-split className="display text-[clamp(2rem,9.6vw,5rem)] md:text-[clamp(2.4rem,5.5vw,5rem)]">
             Rhythm, movement, composition
           </h2>
           <div>

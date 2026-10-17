@@ -35,6 +35,7 @@
 }
 
 html {
+  overflow-x: clip;
   background: var(--ink);
   color: var(--bone);
   -webkit-text-size-adjust: 100%;
@@ -165,6 +166,7 @@ body {
   height: 100%;
   background: transparent;
   cursor: grab;
+  touch-action: none;
 }
 .fader:active {
   cursor: grabbing;
