@@ -5,6 +5,7 @@ import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import gsap from "gsap";
 import { onIntro } from "./Preloader";
+import { pulse } from "@/lib/tempo";
 
 const photoVert = /* glsl */ `
   varying vec2 vUv;
@@ -177,12 +178,9 @@ function buildMark(env: THREE.Texture) {
   };
 }
 
-// Shared, mutable tempo: the hero's tap-tempo button writes it, the frame loop reads it.
-export type Tempo = { bpm: number; tapAt: number };
+type Props = { image: string; onReady?: () => void; onFail?: () => void };
 
-type Props = { image: string; tempo: React.RefObject<Tempo>; onReady?: () => void; onFail?: () => void };
-
-export function HeroScene({ image, tempo, onReady, onFail }: Props) {
+export function HeroScene({ image, onReady, onFail }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -316,7 +314,8 @@ export function HeroScene({ image, tempo, onReady, onFail }: Props) {
     const beatDot = area.querySelector<HTMLElement>("[data-beat-dot]");
     const timer = new THREE.Timer();
     let phase = 0;
-    let lastTap = tempo.current.tapAt;
+    let lastBeat = pulse.beatAt;
+    let beatEnv = 0;
     let raf = 0;
     let running = false;
 
@@ -324,15 +323,21 @@ export function HeroScene({ image, tempo, onReady, onFail }: Props) {
       raf = requestAnimationFrame(frame);
       timer.update(now);
       const t = timer.getElapsed();
-      // Advance the beat at the current tempo; a tap snaps the downbeat to "now".
-      const { bpm, tapAt } = tempo.current;
-      if (tapAt !== lastTap) {
-        lastTap = tapAt;
+      // Advance the beat at the shared tempo; taps and detected kicks snap the
+      // downbeat to "now". When nothing is driving it, the pulse falls still
+      // (a lone tap still fires a single hit).
+      const { running, bpm, beatAt, level } = pulse;
+      if (beatAt !== lastBeat) {
+        lastBeat = beatAt;
         phase = 0;
       } else {
         phase = (phase + (timer.getDelta() * bpm) / 60) % 1;
       }
-      const beat = Math.exp(-phase * 6);
+      const hit = running
+        ? Math.exp(-phase * 6) * level
+        : Math.exp(-((performance.now() - beatAt) / 1000) * 7);
+      beatEnv += (hit - beatEnv) * 0.5;
+      const beat = beatEnv;
 
       const m = uniforms.uMouse.value;
       m.x += (target.x - m.x) * 0.08;
@@ -419,7 +424,7 @@ export function HeroScene({ image, tempo, onReady, onFail }: Props) {
       renderer.dispose();
       canvas.remove();
     };
-  }, [image, tempo, onReady, onFail]);
+  }, [image, onReady, onFail]);
 
   return <div ref={hostRef} className="absolute inset-0" />;
 }

@@ -5,6 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { artist, nav, socials } from "@/lib/content";
 import { lockScroll, prefersReducedMotion, scrollToTarget } from "@/lib/scroll";
+import { TempoChip } from "./TempoControl";
 
 const CLOSED = "polygon(50% -20%, 50% -20%, 50% -20%)";
 const OPEN = "polygon(50% -220%, 300% 160%, -200% 160%)";
@@ -111,6 +112,8 @@ export function Nav() {
           >
             <Image src="/media/logo.png" alt="4PLAY — home" width={145} height={48} className="h-7 w-auto sm:h-8" preload />
           </a>
+          <div className="flex items-center gap-4">
+          <TempoChip />
           <button
             ref={toggle}
             type="button"
@@ -133,6 +136,7 @@ export function Nav() {
             </span>
             {open ? "Close" : "Menu"}
           </button>
+          </div>
         </div>
       </header>
 
