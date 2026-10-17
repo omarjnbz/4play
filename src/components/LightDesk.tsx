@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import { channels } from "@/lib/content";
-import { useTempo } from "@/lib/tempo";
 
 type Levels = Record<(typeof channels)[number]["id"], number>;
 
@@ -16,9 +15,6 @@ function hexToRgb(hex: string) {
 
 export function LightDesk() {
   const [levels, setLevels] = useState<Levels>(INITIAL);
-  // When the mic has locked onto a real beat, the desk follows it.
-  const tempo = useTempo();
-  const live = tempo.status === "locked" ? tempo.bpm : null;
 
   const mix = useMemo(() => {
     let total = 0;
@@ -95,7 +91,7 @@ export function LightDesk() {
             <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/20 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8" aria-live="polite">
               <p className="label text-bone/70">
-                Leading channel · <span className="tabular-nums">{live ?? mix.bpm}</span> BPM{live ? " · live" : ""}
+                Leading channel · <span className="tabular-nums">{mix.bpm}</span> BPM
               </p>
               <p className="display mt-2 text-[clamp(1.75rem,8vw,5.5rem)]">{mix.lead.label}</p>
               <p className="mt-3 max-w-md text-bone-2">{mix.lead.line}</p>
@@ -108,9 +104,7 @@ export function LightDesk() {
               <p className="label text-mute">4PLAY · Light desk</p>
               <span className="flex items-center gap-2">
                 <span className="size-2.5 rounded-full transition-colors duration-500" style={{ background: "var(--light)" }} />
-                <span className="label tabular-nums text-bone">
-                  {live ? `Live · ${live}` : mix.bpm} BPM
-                </span>
+                <span className="label tabular-nums text-bone">{mix.bpm} BPM</span>
               </span>
             </div>
 
@@ -136,7 +130,7 @@ export function LightDesk() {
                           style={
                             {
                               background: `linear-gradient(to top, ${ch.light}, ${ch.light} 70%, #fff)`,
-                              "--beat": `${60 / (live ?? ch.bpm)}s`,
+                              "--beat": `${60 / ch.bpm}s`,
                               "--hi": v / 100,
                               "--lo": (v / 100) * 0.35,
                             } as React.CSSProperties
